@@ -1,12 +1,15 @@
 package com.lucasgomes.votingsystem.model;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
 import lombok.Data;
 
@@ -19,18 +22,18 @@ import lombok.Data;
 @Entity
 public class Voting {
 		
-	private @Id @GeneratedValue long id;
-	private Instant endTime;
-	private Map<Associate, Boolean> associateMap;
-	private int numberOfVotes;
+	@Id @GeneratedValue 
+	Long id;
 	
-	public void addVote()
-	{
-		this.numberOfVotes = this.numberOfVotes + 1;
-	}
+	@ManyToMany
+	@JoinTable( name = "voting_associate", 
+			    joinColumns = @JoinColumn(name = "voting_id"), 
+			    inverseJoinColumns = @JoinColumn(name = "associate_id"))
+	Set<Associate> associateList;
+	
+	@OneToMany(mappedBy = "voting")
+	Set<AssociateVote> votes;
+	
+	private Instant endTime;
 
-	public void addOrReplaceAssociate(Associate associate, Boolean vote)
-	{
-		associateMap.put(associate, vote);
-	}
 }

@@ -2,7 +2,7 @@ package com.lucasgomes.votingsystem.controller;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lucasgomes.votingsystem.dao.AssociateRepository;
+import com.lucasgomes.votingsystem.dao.AssociateVoteRepository;
 import com.lucasgomes.votingsystem.dao.VotingRepository;
 import com.lucasgomes.votingsystem.exceptions.AssociateNotFoundException;
 import com.lucasgomes.votingsystem.exceptions.VotingNotFoundException;
 import com.lucasgomes.votingsystem.model.Associate;
-import com.lucasgomes.votingsystem.model.Message;
+import com.lucasgomes.votingsystem.model.AssociateVote;
+import com.lucasgomes.votingsystem.model.AssociateVoteKey;
 import com.lucasgomes.votingsystem.model.Voting;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,12 +31,18 @@ import lombok.extern.slf4j.Slf4j;
 public class VotingSystemController {
 
 	private final VotingRepository votingRepository;
+
 	private final AssociateRepository associateRepository;
 	
-	public VotingSystemController(VotingRepository votingRepository, AssociateRepository associateRepository)
+	private final AssociateVoteRepository associateVoteRepository;
+	
+	public VotingSystemController(VotingRepository votingRepository, 
+								  AssociateRepository associateRepository,
+								  AssociateVoteRepository associateVoteRepository)
 	{
 		this.votingRepository = votingRepository;
 		this.associateRepository = associateRepository;
+		this.associateVoteRepository = associateVoteRepository;
 	}
 	
 	@PostMapping("/voting")
@@ -44,10 +52,8 @@ public class VotingSystemController {
 	}
 	
 	@PostMapping("/associate")
-	Associate createAssociate(long votingId)
+	Associate createAssociate(@RequestBody Associate associate)
 	{
-		Associate associate = new Associate(votingId);
-
 		return associateRepository.save(associate);
 	}
 	
@@ -60,16 +66,15 @@ public class VotingSystemController {
 		Voting votingFromDb = votingRepository.findById( votingId )
 				.orElseThrow( () -> new VotingNotFoundException( votingId ) );
 		
-		Map<Long, Boolean> associateVotingMap = associateFromDb.getVotingMap();
+		votingFromDb.getAssociateList().add(associateFromDb);
 		
-		associateVotingMap.put(votingFromDb.getId(), null);
+		associateFromDb.getVotingList().add(votingFromDb);
 		
-		votingFromDb.addOrReplaceAssociate(associateFromDb, null);
-
 		votingRepository.save(votingFromDb);
+		
 		associateRepository.save(associateFromDb);
 
-		return null;
+		return associateFromDb;
 	}
 	
 	@PostMapping("/votingsession")
@@ -100,10 +105,13 @@ public class VotingSystemController {
 		Voting votingFromDb = votingRepository.findById( votingId )
 					.orElseThrow( () -> new VotingNotFoundException( votingId ) );
 		
-		String result = "Associate: " + associateId;
-		
-		if ( associateFromDb.hasVotingId( votingId ) )
+		if ( votingFromDb.getAssociateList().contains(associateFromDb) )
 		{
+			
+			//if ( associateFromDb.getV )
+			
+			Optional<AssociateVote> associateVote = associateVoteRepository.findById( new AssociateVoteKey(votingId, associateId) );
+			
 			if ( !associateFromDb.hasAlreadyVoted( votingId ) )
 			{
 				boolean isVotingClosed = Instant.now().isAfter( votingFromDb.getEndTime() );

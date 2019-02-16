@@ -1,10 +1,12 @@
 package com.lucasgomes.votingsystem.model;
 
-import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
 import lombok.Data;
 
@@ -12,27 +14,12 @@ import lombok.Data;
 @Entity
 public class Associate {
 
-	private @Id @GeneratedValue long id;
-	private Map<Long, Boolean> votingMap;
-
-	public Associate(Long votingId)
-	{
-		votingMap.put(votingId, null);
-	}
+	@Id @GeneratedValue long id;
 	
-	public void setVote(Long votingId, Boolean vote)
-	{
-		votingMap.put(votingId, vote);
-	}
-
-	public boolean hasVotingId(long votingId) 
-	{
-		return votingMap.containsKey(votingId);
-	}
+	@ManyToMany(mappedBy = "associateList") 
+	Set<Voting> votingList;
 	
-	public boolean hasAlreadyVoted(long votingId)
-	{
-		return votingMap.get(votingId) == null ? false : true ;
-	}
-
+	@OneToMany(mappedBy = "associate")
+	Set<AssociateVote> votes;
+	
 }
