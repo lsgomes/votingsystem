@@ -3,12 +3,10 @@ package com.lucasgomes.votingsystem.model.entity;
 import java.time.Instant;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -16,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Lucas
@@ -24,6 +22,7 @@ import lombok.EqualsAndHashCode;
  */
 
 @Data
+@NoArgsConstructor
 @Entity
 @Table
 @JsonIdentityInfo(
@@ -32,37 +31,50 @@ import lombok.EqualsAndHashCode;
 public class Voting {
 		
 	@Id 
-	@GeneratedValue 
-	Long id;
+	@GeneratedValue()
+	private Long id;
 	
-	String name;
+	@OneToMany( mappedBy = "voting", cascade = { CascadeType.ALL } )
+	private Set<AssociateVote> associateVotes;
+
+	private String name;
+	 
+	private Instant endTime;
 	
-	@ManyToMany
-	@JoinTable( name = "voting_associate", 
-			    joinColumns = @JoinColumn(name = "voting_id"), 
-			    inverseJoinColumns = @JoinColumn(name = "associate_id"))
-	@EqualsAndHashCode.Exclude
-	Set<Associate> associateList;
-	
-	@OneToMany(mappedBy = "voting")
-	Set<AssociateVote> votes;
-	
-	Instant endTime;
-		
-	public Voting()
-	{
-		// For de-serialisation
-	}
+	private Long numberOfVotes;
 	
 	public Voting(String name)
 	{
 		this.name = name;
 	}
 	
-	public Voting(String name, Set<Associate> associateList)
+	public Voting(String name, Set<AssociateVote> associateVotes)
 	{
 		this.name = name;
-		this.associateList = associateList;
+		this.associateVotes = associateVotes;
+	}
+	
+	public Long incrementNumberOfVotes()
+	{
+		return numberOfVotes = numberOfVotes + 1;
+	}
+	
+	public Long getNumberOfVotes()
+	{
+		Long total = 0L;
+		
+		if ( associateVotes != null )
+		{
+			for ( AssociateVote associateVote : associateVotes )
+			{
+				if ( associateVote.getVote() != null )
+				{
+					total = total + 1;
+				}
+			}
+		}
+
+		return total;
 	}
 
 }

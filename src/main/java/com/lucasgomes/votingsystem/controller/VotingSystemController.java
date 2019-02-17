@@ -2,19 +2,17 @@ package com.lucasgomes.votingsystem.controller;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lucasgomes.votingsystem.dao.AssociateRepository;
-import com.lucasgomes.votingsystem.dao.AssociateVoteRepository;
 import com.lucasgomes.votingsystem.dao.VotingRepository;
 import com.lucasgomes.votingsystem.exceptions.AssociateAlreadyVotedException;
 import com.lucasgomes.votingsystem.exceptions.AssociateNotFoundException;
@@ -23,12 +21,10 @@ import com.lucasgomes.votingsystem.exceptions.InvalidVoteException;
 import com.lucasgomes.votingsystem.exceptions.VotingAlreadyClosedException;
 import com.lucasgomes.votingsystem.exceptions.VotingNotFoundException;
 import com.lucasgomes.votingsystem.model.dto.AddAssociateToVotingDto;
-import com.lucasgomes.votingsystem.model.dto.CountVotesDto;
 import com.lucasgomes.votingsystem.model.dto.VoteDto;
 import com.lucasgomes.votingsystem.model.dto.VotingSessionDto;
 import com.lucasgomes.votingsystem.model.entity.Associate;
 import com.lucasgomes.votingsystem.model.entity.AssociateVote;
-import com.lucasgomes.votingsystem.model.entity.AssociateVoteKey;
 import com.lucasgomes.votingsystem.model.entity.Voting;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class VotingSystemController {
 
-	Logger logger = LoggerFactory.getLogger(VotingSystemController.class);
-	
 	static final Long DEFAULT_VOTING_SESSION_DURATION = 60L;
 	static final Long INVALID_VOTING_SESSION_DURATION = 0L ;
 	
@@ -51,51 +45,79 @@ public class VotingSystemController {
 
 	private final AssociateRepository associateRepository;
 	
-	private final AssociateVoteRepository associateVoteRepository;
 
 	public VotingSystemController(VotingRepository votingRepository, 
-								  AssociateRepository associateRepository,
-								  AssociateVoteRepository associateVoteRepository)
+								  AssociateRepository associateRepository)
 	{
 		this.votingRepository = votingRepository;
 		this.associateRepository = associateRepository;
-		this.associateVoteRepository = associateVoteRepository;
 	}
 	
 	@PostMapping("/voting")
-	Voting createVoting(@RequestBody Voting voting)
+	synchronized Voting createVoting(@RequestBody Voting voting)
 	{
-		logger.info("/voting called, saving: " + voting.toString() );
+		log.info("/voting called, saving: " + voting.toString() );
 		return votingRepository.save(voting);
 	}
 	
 	@GetMapping("/voting")
-	List<Voting> getAllVotings()
+	List<Voting> getAllVotings(@RequestParam(value="active", required=false) Boolean active )
 	{
-		logger.info("/voting called, retrieving all votings");
-		return votingRepository.findAll();
+		log.info("/voting called, retrieving all votings with active " + active);
+		
+		List<Voting> votings;
+		
+		if ( active == null )
+		{
+			votings = votingRepository.findAll();
+		}
+		else
+		{
+			votings = new ArrayList<>();
+
+			for ( Voting votingFromDb : votingRepository.findAll() )
+			{
+				if ( votingFromDb.getEndTime() != null)
+				{
+					boolean isVotingClosed = Instant.now().isAfter( votingFromDb.getEndTime() );
+					
+					if ( !isVotingClosed == active )
+					{
+						votings.add(votingFromDb);
+					}
+				}
+				// If the voting has never started, endTime is null
+				else if ( !active )
+				{
+					votings.add(votingFromDb);
+				}
+			}
+		}
+		
+		return votings;
 	}
+
 	
 	@GetMapping("/voting/{id}")
 	Voting getVoting(@PathVariable Long id)
 	{
-		logger.info("/voting/" + id + " called, retrieving voting");
+		log.info("/voting/" + id + " called, retrieving voting");
 
 		return votingRepository.findById( id )
 				.orElseThrow( () -> new VotingNotFoundException( id ) );
 	}
 	
 	@PostMapping("/associate")
-	Associate createAssociate(@RequestBody Associate associate)
+	synchronized Associate createAssociate(@RequestBody Associate associate)
 	{
-		logger.info("/associate called, saving: " + associate.toString() );
+		log.info("/associate called, saving: " + associate.toString() );
 		return associateRepository.save(associate);
 	}
 	
 	@GetMapping("/associate/{id}")
 	Associate getAssociate(@PathVariable Long id)
 	{
-		logger.info("/associate/" + id + " called, retrieving associate");
+		log.info("/associate/" + id + " called, retrieving associate");
 
 		return associateRepository.findById( id )
 				.orElseThrow( () -> new AssociateNotFoundException( id ) );
@@ -104,17 +126,17 @@ public class VotingSystemController {
 	@GetMapping("/associate")
 	List<Associate> getAllAssociates()
 	{
-		logger.info("/associate called, retrieving all associates");
+		log.info("/associate called, retrieving all associates");
 		return associateRepository.findAll();
 	}
 	
 	@PostMapping("/addassociatetovoting")
-	Associate addAssociateToVoting(@RequestBody AddAssociateToVotingDto addAssociateToVotingDto)
+	synchronized Associate addAssociateToVoting(@RequestBody AddAssociateToVotingDto addAssociateToVotingDto)
 	{
 		Long associateId = addAssociateToVotingDto.getAssociateId();
 		Long votingId = addAssociateToVotingDto.getVotingId();
 		
-		logger.info("/addassociatetovoting called, for associate id " + associateId + " voting id " + votingId);
+		log.info("/addassociatetovoting called, for associate id " + associateId + " voting id " + votingId);
 
 		Associate associateFromDb = associateRepository.findById( associateId  )
 				.orElseThrow( () -> new AssociateNotFoundException( associateId ) );
@@ -122,19 +144,17 @@ public class VotingSystemController {
 		Voting votingFromDb = votingRepository.findById( votingId )
 				.orElseThrow( () -> new VotingNotFoundException( votingId ) );
 		
-		votingFromDb.getAssociateList().add(associateFromDb);
+		AssociateVote associateVote = new AssociateVote(votingFromDb, associateFromDb);
 		
-		associateFromDb.getVotingList().add(votingFromDb);
-				
+		votingFromDb.getAssociateVotes().add(associateVote);
+						
 		votingRepository.save(votingFromDb);
-		
-		associateRepository.save(associateFromDb);
 
 		return associateFromDb;
 	}
 	
 	@PostMapping("/votingsession")
-	Voting createVotingSession(@RequestBody VotingSessionDto votingSessionDto)
+	synchronized Voting createVotingSession(@RequestBody VotingSessionDto votingSessionDto)
 	{
 		Long votingId = votingSessionDto.getVotingId();
 		Long duration = votingSessionDto.getDuration();
@@ -144,7 +164,7 @@ public class VotingSystemController {
 			duration = DEFAULT_VOTING_SESSION_DURATION;
 		}
 		
-		logger.info("/votingsession called, for voting id " + votingId + " duration " + duration);
+		log.info("/votingsession called, for voting id " + votingId + " duration " + duration);
 
 		Voting votingFromDb = votingRepository.findById( votingId )
 				.orElseThrow( () -> new VotingNotFoundException( votingId ) );
@@ -155,19 +175,24 @@ public class VotingSystemController {
 		
 		votingRepository.save(votingFromDb);
 		
-		logger.info( "Voting id: " + votingId  + " open until: " + votingEndTime.toString() );
+		log.info( "Voting id: " + votingId  + " open until: " + votingEndTime.toString() );
 		
 		return votingFromDb;
 	}
 	
 	@PostMapping("/vote")
-	AssociateVote vote(@RequestBody VoteDto voteDto)
+	synchronized AssociateVote vote(@RequestBody VoteDto voteDto)
 	{
-		logger.info("/vote called");
+		log.info("/vote called");
 
 		Long associateId = voteDto.getAssociateId();
 		Long votingId = voteDto.getVotingId();
 		Boolean vote = voteDto.getVote();
+		
+		if ( vote == null )
+		{
+			throw new InvalidVoteException(vote);
+		}
 		
 		Associate associateFromDb = associateRepository.findById( associateId )
 					.orElseThrow( () -> new AssociateNotFoundException( associateId ) );
@@ -175,35 +200,43 @@ public class VotingSystemController {
 		Voting votingFromDb = votingRepository.findById( votingId )
 					.orElseThrow( () -> new VotingNotFoundException( votingId ) );
 		
-		if ( vote == null )
+		AssociateVote associateVote = new AssociateVote(votingFromDb, associateFromDb);
+		
+		boolean isIncludedInVoting = votingFromDb.getAssociateVotes().contains(associateVote);
+				
+		if ( isIncludedInVoting )
 		{
-			throw new InvalidVoteException(vote);
-		}
-		
-		AssociateVote associateVote = new AssociateVote(votingFromDb, associateFromDb, vote );
-		
-		boolean isAssociateIncludedInVoting = votingFromDb.getAssociateList().contains(associateFromDb);
-		
-		if ( isAssociateIncludedInVoting )
-		{
-			Optional<AssociateVote> hasAlreadyVoted = associateVoteRepository.findById( new AssociateVoteKey(votingId, associateId) );
+			boolean hasNotVotedYet = associateVote.getVote() == null;
 			
-			// Associate has not voted yet
-			if ( !hasAlreadyVoted.isPresent() )
+			if ( hasNotVotedYet )
 			{
+				// Associate has not voted yet
 				boolean isVotingClosed = Instant.now().isAfter( votingFromDb.getEndTime() );
 
+				// Only accepts the vote if the voting is not closed
 				if ( !isVotingClosed )
 				{	
-					logger.info("Associate " + associateId + " voted " + vote + " for voting " + votingId);
-					associateVoteRepository.save(associateVote);
+					log.info("Associate " + associateId + " voted " + vote + " for voting " + votingId);
+
+					// Set does not allow replace, so remove and add the vote
+					votingFromDb.getAssociateVotes().remove(associateVote); 
+					
+					associateVote.setVote(vote);
+
+					votingFromDb.getAssociateVotes().add(associateVote);
+					
+					// Increment number of votes
+					votingFromDb.setNumberOfVotes( votingFromDb.getNumberOfVotes() + 1 );
+
+					// Save the voting and cascading entities
+					votingRepository.save(votingFromDb);
 				}
 				else
 				{
 					throw new VotingAlreadyClosedException(votingId);
 				}
 			}
-			else 
+			else
 			{
 				throw new AssociateAlreadyVotedException(associateId, votingId);
 			}
@@ -213,28 +246,7 @@ public class VotingSystemController {
 			throw new AssociateNotIncludedException(associateId, votingId);
 		}
 
-
 		return associateVote;
-	}
-	
-	@GetMapping("/vote")
-	List<AssociateVote> getAllVotes()
-	{
-		logger.info("/vote called, retrieving all votes");
-		return associateVoteRepository.findAll();
-	}
-	
-	@GetMapping("/countvotes")
-	Voting countVotes(@RequestBody CountVotesDto countVotesDto)
-	{
-		Long votingId = countVotesDto.getVotingId();
-		
-		logger.info("/countvotes called, for voting id " + votingId);
-		
-		Voting votingFromDb = votingRepository.findById( votingId )
-				.orElseThrow( () -> new VotingNotFoundException( votingId ) );
-		
-		return votingFromDb;		
 	}
 
 }

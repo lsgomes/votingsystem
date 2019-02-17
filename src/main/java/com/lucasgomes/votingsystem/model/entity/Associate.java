@@ -2,10 +2,10 @@ package com.lucasgomes.votingsystem.model.entity;
 
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -13,9 +13,10 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @Entity
 @Table
 @JsonIdentityInfo(
@@ -23,31 +24,18 @@ import lombok.EqualsAndHashCode;
 		  property = "id")
 public class Associate {
 
-	@Id @GeneratedValue 
-	long id;
+	@Id 
+	@GeneratedValue()  
+	private Long id;
+		
+	@OneToMany(mappedBy = "associate", cascade = CascadeType.ALL )
+	private Set<AssociateVote> associateVotes;
 	
-	String name;
-	
-	@ManyToMany(mappedBy = "associateList")
-	@EqualsAndHashCode.Exclude
-	Set<Voting> votingList;
-	
-	@OneToMany(mappedBy = "associate")
-	Set<AssociateVote> votes;
-
-	public Associate()
-	{
-		// For de-serialisation
-	}
+	private String name;
 	
 	public Associate(String name)
 	{
 		this.name = name;
 	}
-	
-	public Associate(String name, Set<Voting> votingList)
-	{
-		this.name = name;
-		this.votingList = votingList;
-	}
+
 }

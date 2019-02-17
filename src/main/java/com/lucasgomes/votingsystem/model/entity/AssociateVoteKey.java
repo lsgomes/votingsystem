@@ -1,30 +1,38 @@
 package com.lucasgomes.votingsystem.model.entity;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
-import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Embeddable
-@Data
+@NoArgsConstructor
 public class AssociateVoteKey implements Serializable {
 
-	@Column(name = "voting_id")
-	Long votingId;
+	Voting voting;
 	
-	@Column(name = "associate_id")
-	Long associateId;
-
-	public AssociateVoteKey()
-	{
-		// For de-serialisation
-	}
+	Associate associate;
 	
-	public AssociateVoteKey(Long votingId, Long associateId) {
+	public AssociateVoteKey(Voting voting, Associate associate) {
 		
-		this.votingId = votingId;
-		this.associateId = associateId;
+		this.voting = voting;
+		this.associate = associate;
 	}
+	
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AssociateVote)) return false;
+        AssociateVote that = (AssociateVote) o;
+        return Objects.equals(voting.getName(), that.voting.getName()) &&
+                Objects.equals(associate.getName(), that.associate.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(voting.getName(), associate.getName());
+    }
+
 }

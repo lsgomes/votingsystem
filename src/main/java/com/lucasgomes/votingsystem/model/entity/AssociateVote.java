@@ -1,39 +1,37 @@
 package com.lucasgomes.votingsystem.model.entity;
 
-import javax.persistence.EmbeddedId;
+import java.util.Objects;
+
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
 import javax.persistence.Table;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @Entity
 @Table
+@Getter
+@Setter
+@NoArgsConstructor
+@IdClass(AssociateVoteKey.class)
 public class AssociateVote {
-
-	@EmbeddedId
-	AssociateVoteKey id;
 	
+	@Id
 	@ManyToOne
-    @MapsId("voting_id")
-    @JoinColumn(name = "voting_id")
+    @JoinColumn()
     Voting voting;
  
+	@Id
     @ManyToOne
-    @MapsId("associate_id")
-    @JoinColumn(name = "associate_id")
+    @JoinColumn()
     Associate associate;
  
     Boolean vote;
-    
-    public AssociateVote()
-    {
-    	// For de-serialisation
-    }
 
     public AssociateVote(Voting voting, Associate associate, Boolean vote)
     {
@@ -42,5 +40,25 @@ public class AssociateVote {
     	this.vote = vote;
     }
     
+    public AssociateVote(Voting voting, Associate associate)
+    {
+    	this.voting = voting;
+    	this.associate = associate;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AssociateVote)) return false;
+        AssociateVote that = (AssociateVote) o;
+        return Objects.equals(voting.getName(), that.voting.getName()) &&
+               Objects.equals(associate.getName(), that.associate.getName()) &&
+               Objects.equals(vote, that.vote);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(voting.getName(), associate.getName(), vote);
+    }
 
 }
