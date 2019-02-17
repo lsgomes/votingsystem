@@ -1,4 +1,4 @@
-package com.lucas.gomes.votingsystem.advice;
+package com.lucasgomes.votingsystem.advice;
 
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -32,20 +32,30 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * @author Lucas
  *
+ * 	Spring Boot RestController to handle HTTP requests.
+ *
+ *	Uses built-in logback logger.
+ * 
+ *
  */
 
 @RestController
 @Slf4j
 public class VotingSystemController {
 
+	// Default session duration
 	static final Long DEFAULT_VOTING_SESSION_DURATION = 60L;
-	static final Long INVALID_VOTING_SESSION_DURATION = 0L ;
 	
+	// If the session duration is equal or less than this, is considered invalid
+	static final Long INVALID_VOTING_SESSION_DURATION = 0L ;
+
+	// JPA repository for voting entity
 	private final VotingRepository votingRepository;
 
+	// JPA repository for associate entity
 	private final AssociateRepository associateRepository;
-	
 
+	// Constructor
 	public VotingSystemController(VotingRepository votingRepository, 
 								  AssociateRepository associateRepository)
 	{
@@ -53,6 +63,7 @@ public class VotingSystemController {
 		this.associateRepository = associateRepository;
 	}
 	
+	// Creates a Voting
 	@PostMapping("/voting")
 	synchronized Voting createVoting(@RequestBody Voting voting)
 	{
@@ -60,6 +71,8 @@ public class VotingSystemController {
 		return votingRepository.save(voting);
 	}
 	
+	// Gets a Voting
+	// If active parameter is specified, returns all active or inactive voting
 	@GetMapping("/voting")
 	List<Voting> getAllVotings(@RequestParam(value="active", required=false) Boolean active )
 	{
@@ -97,7 +110,7 @@ public class VotingSystemController {
 		return votings;
 	}
 
-	
+	// Gets a specific voting according to id
 	@GetMapping("/voting/{id}")
 	Voting getVoting(@PathVariable Long id)
 	{
@@ -107,6 +120,7 @@ public class VotingSystemController {
 				.orElseThrow( () -> new VotingNotFoundException( id ) );
 	}
 	
+	// Creates an Associate
 	@PostMapping("/associate")
 	synchronized Associate createAssociate(@RequestBody Associate associate)
 	{
@@ -114,6 +128,7 @@ public class VotingSystemController {
 		return associateRepository.save(associate);
 	}
 	
+	// Gets a specific Associate according to id
 	@GetMapping("/associate/{id}")
 	Associate getAssociate(@PathVariable Long id)
 	{
@@ -123,6 +138,7 @@ public class VotingSystemController {
 				.orElseThrow( () -> new AssociateNotFoundException( id ) );
 	}
 	
+	// Gets all Associates
 	@GetMapping("/associate")
 	List<Associate> getAllAssociates()
 	{
@@ -130,6 +146,8 @@ public class VotingSystemController {
 		return associateRepository.findAll();
 	}
 	
+	// Add an Associate to a Voting
+	// This step is necessary for an Associate to be able to Vote in a specific Voting
 	@PostMapping("/addassociatetovoting")
 	synchronized Associate addAssociateToVoting(@RequestBody AddAssociateToVotingDto addAssociateToVotingDto)
 	{
@@ -153,6 +171,7 @@ public class VotingSystemController {
 		return associateFromDb;
 	}
 	
+	// Opens a Voting Session according to specified duration. Default: DEFAULT_VOTING_SESSION_DURATION
 	@PostMapping("/votingsession")
 	synchronized Voting createVotingSession(@RequestBody VotingSessionDto votingSessionDto)
 	{
@@ -180,6 +199,7 @@ public class VotingSystemController {
 		return votingFromDb;
 	}
 	
+	// Receive an Associate vote for an active Session
 	@PostMapping("/vote")
 	synchronized AssociateVote vote(@RequestBody VoteDto voteDto)
 	{
