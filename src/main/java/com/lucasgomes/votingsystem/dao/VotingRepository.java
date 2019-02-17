@@ -1,8 +1,8 @@
 package com.lucasgomes.votingsystem.dao;
 
-import com.lucasgomes.votingsystem.model.Voting;
-
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.lucasgomes.votingsystem.model.entity.Voting;
 
 /**
  * @author Lucas
