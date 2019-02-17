@@ -13,6 +13,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Lucas Gomes
+ * 
+ * AssociateVote entity mapping
+ *
+ */
+
 @Entity
 @Table
 @Getter
@@ -47,7 +54,8 @@ public class AssociateVote {
     }
     
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o) 
+    {
         if (this == o) return true;
         if (!(o instanceof AssociateVote)) return false;
         AssociateVote that = (AssociateVote) o;

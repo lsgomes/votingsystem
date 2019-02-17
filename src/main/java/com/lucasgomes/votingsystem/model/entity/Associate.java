@@ -15,10 +15,18 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @author Lucas Gomes
+ * 
+ * Associate entity mapping
+ *
+ */
+
 @Data
 @NoArgsConstructor
 @Entity
 @Table
+// To avoid Jackson infinite recursion
 @JsonIdentityInfo(
 		  generator = ObjectIdGenerators.PropertyGenerator.class, 
 		  property = "id")

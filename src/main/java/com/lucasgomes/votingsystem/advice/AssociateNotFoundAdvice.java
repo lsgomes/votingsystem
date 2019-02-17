@@ -6,12 +6,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lucasgomes.votingsystem.exceptions.AssociateNotFoundException;
 
+/**
+ * @author Lucas Gomes
+ *
+ *         Advice for AssociateNotFoundException
+ * 
+ */
 @ControllerAdvice
 public class AssociateNotFoundAdvice {
 
 	@ResponseBody
 	@ExceptionHandler(AssociateNotFoundException.class)
-	String handleAssociateNotFoundException(AssociateNotFoundException ex) {
+	String handleAssociateNotFoundException(AssociateNotFoundException ex)
+	{
 		return ex.getMessage();
 	}
 

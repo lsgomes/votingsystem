@@ -6,12 +6,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lucasgomes.votingsystem.exceptions.VotingAlreadyClosedException;
 
+/**
+ * @author Lucas Gomes
+ *
+ *         Advice for VotingAlreadyClosedException
+ * 
+ */
 @ControllerAdvice
 public class VotingAlreadyClosedAdvice {
 
 	@ResponseBody
 	@ExceptionHandler(VotingAlreadyClosedException.class)
-	String votingAlreadyClosedHandler(VotingAlreadyClosedException ex) {
+	String votingAlreadyClosedHandler(VotingAlreadyClosedException ex) 
+	{
 		return ex.getMessage();
 	}
 }

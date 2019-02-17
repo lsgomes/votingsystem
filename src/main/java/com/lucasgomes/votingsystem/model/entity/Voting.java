@@ -17,7 +17,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @author Lucas
+ * @author Lucas Gomes
+ * 
+ * Voting entity mapping
  *
  */
 
@@ -25,6 +27,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table
+//To avoid Jackson infinite recursion
 @JsonIdentityInfo(
 		  generator = ObjectIdGenerators.PropertyGenerator.class, 
 		  property = "id")
@@ -63,11 +66,11 @@ public class Voting {
 	{
 		Long total = 0L;
 		
-		if ( associateVotes != null )
+		if (associateVotes != null)
 		{
-			for ( AssociateVote associateVote : associateVotes )
+			for (AssociateVote associateVote : associateVotes)
 			{
-				if ( associateVote.getVote() != null )
+				if (associateVote.getVote() != null)
 				{
 					total = total + 1;
 				}

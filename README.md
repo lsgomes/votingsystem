@@ -7,9 +7,9 @@ Features:
 *  Create an Associate
 *  Add an Associate to a Voting
 *  Open a time-limited Voting Session 
-*  Receive an Associate Vote for an active Voting ession
+*  Receive an Associate Vote for an active Voting session
 *  Get the Voting results
-*  Get active 
+*  Get all active Voting sessions
  
 ## Getting Started
 
@@ -20,9 +20,20 @@ To run the embedded HSQLDB needed by the Voting System application, go into the 
 java -classpath lib/hsqldb.jar org.hsqldb.server.Server
 ```
 
-To run the Voting System application, go into the project root folder and run:
+To run the Voting System jar already compiled in the target folder:
+
+```
+java -jar target\votingsystem-0.0.1-SNAPSHOT.jar
+```
+
+To download all dependencies, compile and run the Voting System application, go into the project root folder and run:
 ```
 mvnw spring-boot:run
+```
+
+To package into a jar file:
+```
+mvn package
 ```
 
 ## Usage
@@ -84,10 +95,13 @@ GET /voting?active=true
 
 *  Framework: Spring Boot, due to auto-configuration and included libraries (Jackson, JPA, Hibernate, Logger)
 *  Mapping: Many-To-Many because a Voting can have multiple Associates and an Associate can have multiple Voting.
+*  POST synchronized methods for thread-safety and multiple requests.
+*  Embedded Database: HSQLDB due to native Hibernate support.
 
 ## Built With
 
- [Maven](https//maven.apache.org) - Dependency Management
+* [Maven](https://maven.apache.org) - Dependency Management
+* [HSQLDB](http://hsqldb.org) - Embedded Database
 
 ## Authors
 

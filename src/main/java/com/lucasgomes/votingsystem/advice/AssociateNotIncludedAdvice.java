@@ -6,12 +6,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.lucasgomes.votingsystem.exceptions.AssociateNotIncludedException;
 
+/**
+ * @author Lucas Gomes
+ *
+ *         Advice for AssociateNotIncludedException
+ * 
+ */
 @ControllerAdvice
 public class AssociateNotIncludedAdvice {
 
 	@ResponseBody
 	@ExceptionHandler(AssociateNotIncludedException.class)
-	String associateAlreadyVotedHandler(AssociateNotIncludedException ex) {
+	String associateAlreadyVotedHandler(AssociateNotIncludedException ex) 
+	{
 		return ex.getMessage();
 	}
 
