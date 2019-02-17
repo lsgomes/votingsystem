@@ -2,30 +2,34 @@
 
 REST application to manage voting.
 
-Features
- Create a new Voting
- Create an Associate
- Add an Associate to a Voting
- Open a time-limited Voting Session 
- Receive an Associate Vote for an active Voting ession
- Get the Voting results
- Get active 
+Features:
+*  Create a new Voting
+*  Create an Associate
+*  Add an Associate to a Voting
+*  Open a time-limited Voting Session 
+*  Receive an Associate Vote for an active Voting ession
+*  Get the Voting results
+*  Get active 
  
 ## Getting Started
 
 git clone this repository.
 
 To run the embedded HSQLDB needed by the Voting System application, go into the hsqldb folder and run:
+```
 java -classpath lib/hsqldb.jar org.hsqldb.server.Server
+```
 
 To run the Voting System application, go into the project root folder and run:
+```
 mvnw spring-boot:run
+```
 
 ## Usage
 
 Postman collection for usage is included in the postman folder.
 
- Create a new Voting
+* Create a new Voting
 ```
 POST /voting
 {
@@ -33,7 +37,7 @@ POST /voting
 }
 ``` 
 
- Create a new Associate
+*  Create a new Associate
 ```
 POST /associate
 {
@@ -41,7 +45,7 @@ POST /associate
 }
 ```
 
- Add an Associate to a Voting
+*  Add an Associate to a Voting
 ```
 POST /addassociatetovoting
 {
@@ -49,7 +53,7 @@ POST /addassociatetovoting
 }
 ```
 
- Open a Voting Session
+*  Open a Voting Session
 ```
 POST /votingsession
 {
@@ -57,7 +61,7 @@ POST /votingsession
 }
 ```
 
- Receive an Associate Vote for an active Voting session
+*  Receive an Associate Vote for an active Voting session
 ```
 POST /vote
 {
@@ -65,12 +69,12 @@ POST /vote
 }
 ```
 
- Get the Voting results
+*  Get the Voting results
 ```
 GET /voting/<id>
 ```
 
- Get all active Voting sessions
+*  Get all active Voting sessions
  ```
 GET /voting?active=true
 ```
@@ -78,8 +82,8 @@ GET /voting?active=true
  
 ## Decisions
 
-Framework: Spring Boot, due to auto-configuration and included libraries (Jackson, JPA, Hibernate, Logger)
-Mapping: Many-To-Many because a Voting can have multiple Associates and an Associate can have multiple Voting.
+*  Framework: Spring Boot, due to auto-configuration and included libraries (Jackson, JPA, Hibernate, Logger)
+*  Mapping: Many-To-Many because a Voting can have multiple Associates and an Associate can have multiple Voting.
 
 ## Built With
 
@@ -87,5 +91,5 @@ Mapping: Many-To-Many because a Voting can have multiple Associates and an Assoc
 
 ## Authors
 
- Lucas Gomes - [GitHub](https://github.com/lsgomes)
+*  Lucas Gomes - [GitHub](https://github.com/lsgomes)
 
