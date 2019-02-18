@@ -41,6 +41,11 @@ public class Associate {
 	
 	private String name;
 	
+	/**
+	 *  Constructor
+	 * 
+	 * @param name the Associate name
+	 */
 	public Associate(String name)
 	{
 		this.name = name;

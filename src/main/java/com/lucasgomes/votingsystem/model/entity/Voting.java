@@ -46,11 +46,16 @@ public class Voting {
 	
 	private Long numberOfVotes;
 	
+	/**
+	 * Constructor
+	 *
+	 * @param name the Voting name
+	 */
 	public Voting(String name)
 	{
 		this.name = name;
 	}
-	
+
 	public Voting(String name, Set<AssociateVote> associateVotes)
 	{
 		this.name = name;

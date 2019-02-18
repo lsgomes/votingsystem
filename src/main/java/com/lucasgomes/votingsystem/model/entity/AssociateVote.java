@@ -40,6 +40,13 @@ public class AssociateVote {
  
     Boolean vote;
 
+    /**
+     * Constructor
+     * 
+     * @param voting the Voting entity
+     * @param associate the Associate entity
+     * @param vote true, false or null. null counts as not voted
+     */
     public AssociateVote(Voting voting, Associate associate, Boolean vote)
     {
     	this.voting = voting;
