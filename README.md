@@ -48,7 +48,7 @@ mvnw spring-boot:run
 
 Postman collection for usage is included in the postman folder.
 
-* Create a new Voting
+1. Create a new Voting
 ```
 POST /voting
 {
@@ -56,7 +56,7 @@ POST /voting
 }
 ``` 
 
-*  Create a new Associate
+2. Create a new Associate
 ```
 POST /associate
 {
@@ -64,7 +64,7 @@ POST /associate
 }
 ```
 
-*  Add an Associate to a Voting
+3. Add an Associate to a Voting
 ```
 POST /addassociatetovoting
 {
@@ -72,7 +72,7 @@ POST /addassociatetovoting
 }
 ```
 
-*  Open a Voting Session
+4.  Open a Voting Session
 ```
 POST /votingsession
 {
@@ -80,7 +80,7 @@ POST /votingsession
 }
 ```
 
-*  Receive an Associate Vote for an active Voting session
+5. Receive an Associate Vote for an active Voting session
 ```
 POST /vote
 {
@@ -88,21 +88,32 @@ POST /vote
 }
 ```
 
-*  Get the Voting results
+6.  Get the Voting results
 ```
 GET /voting/<id>
 ```
+
+Extras:
 
 *  Get all active Voting sessions
  ```
 GET /voting?active=true
 ```
 
+*  Get all Associates
+ ```
+GET /associate
+```
+
 ## Decisions
 
+*  REST endpoint is located at http://localhost:8080
 *  Mapping: Many-To-Many because a Voting can have multiple Associates and an Associate can have multiple Voting.
 *  The Associate must be assigned to the Voting before he can vote, otherwise he is not an participant of the voting.
-*  AssociateVote: if the vote is null, the Associate has not voted yet.
+*  AssociateVote: if the vote is null, the Associate has not voted yet. If calling /vote with null, InvalidVoteException is thrown.
+*  Voting session duration is specified in seconds.
+*  Voting session end time is store in the endTime attribute.
+*  Total number of votes of a session is stored in the numberOfVotes attribute.
 *  POST synchronized methods for thread-safety and multiple requests support.
 *  @ControllerAdvice annotation for HTTP error handling.
 *  Any invalid action or state mapped to exceptions, HTTP Status 403 Forbidden.
