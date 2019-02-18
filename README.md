@@ -93,15 +93,14 @@ GET /voting?active=true
  
 ## Decisions
 
-*  Framework: Spring Boot, due to auto-configuration and included libraries (Jackson, JPA, Hibernate, Logger)
+*  Framework: [Spring Boot](https://spring.io/projects/spring-boot), due to auto-configuration and included libraries (Jackson, JPA, Hibernate, Logger)
 *  Mapping: Many-To-Many because a Voting can have multiple Associates and an Associate can have multiple Voting.
-*  POST synchronized methods for thread-safety and multiple requests.
-*  Embedded Database: HSQLDB due to native Hibernate support.
-
-## Built With
-
-* [Maven](https://maven.apache.org) - Dependency Management
-* [HSQLDB](http://hsqldb.org) - Embedded Database
+*  POST synchronized methods for thread-safety and multiple requests support.
+*  Embedded Database: [HSQLDB](http://hsqldb.org) due to native Hibernate support.
+*  [Lombok](https://projectlombok.org) to reduce boilerplate code.
+*  [Maven](https://maven.apache.org) - Dependency Management.
+*  @ControllerAdvice annotation for HTTP error handling
+*  [Data Transfer Object](https://martinfowler.com/eaaCatalog/dataTransferObject.html) for encapsulation
 
 ## Authors
 

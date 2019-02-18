@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author Lucas Gomes
  * 
  */
-@ResponseStatus(code = HttpStatus.NOT_FOUND)
+@ResponseStatus(HttpStatus.NOT_FOUND)
 public class AssociateNotFoundException extends RuntimeException {
 
 	/**
